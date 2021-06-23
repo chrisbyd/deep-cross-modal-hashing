@@ -1,6 +1,6 @@
 training:
-  method: CMHN
-  dataName: mscoco
+  method: CMHH
+  dataName: coco2014
   batchSize: 64
   bit: 64
   cuda: True
@@ -8,13 +8,14 @@ training:
 
 datasetPath:
   Mirflickr25k:
-    img_dir: I:\dataset\mirflickr25k\mirflickr
+    img_dir: ~\dataset\mirflickr25k\mirflickr
   NUS WIDE:
     img_dir:
   COCO2014:
-    img_dir:
+    img_dir: ../torchcmh/dataset/data/coco2014/images
   IAPR TC-12:
     img_dir:
+
 
 dataPreprocess:
   img:
@@ -51,5 +52,3 @@ dataAugmentation:
       enable: True
       probability: 0.2
       defaultValue: 0
-
-

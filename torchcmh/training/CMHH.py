@@ -7,7 +7,7 @@ from torch.autograd import Variable
 from torch.optim import SGD
 from tqdm import tqdm
 from torch.utils.data import DataLoader
-from torchcmh.models import MLP, cnnf
+from torchcmh.models import MLP, cnnf, vgg, alexnet
 from torchcmh.training.base import TrainBase
 from torchcmh.utils import calc_neighbor
 from torchcmh.dataset import single_data
@@ -32,7 +32,7 @@ class CMHH(TrainBase):
         self.lr_decay = 0.5
 
         self.num_train = len(self.train_data)
-        self.img_model = cnnf.get_cnnf(bit)
+        self.img_model = alexnet.get_alexnet(bit= bit)
         self.txt_model = MLP.MLP(self.train_data.get_tag_length(), bit)
         self.train_label = self.train_data.get_all_label()
         self.F_buffer = torch.randn(self.num_train, bit)

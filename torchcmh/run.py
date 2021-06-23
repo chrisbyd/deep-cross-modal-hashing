@@ -12,7 +12,7 @@ from torchcmh.utils.config_loader import Config
 __all__ = ['run']
 
 
-def run(config_path='default_config.yml', **kwargs):
+def run(config_path='train_config.yml', **kwargs):
     config = Config(config_path)
     method = config.training['method']
     data_name = config.training['dataName']

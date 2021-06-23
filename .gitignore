@@ -12,6 +12,8 @@ checkpoints
 .idea
 *.iml
 
+
+torchcmh/dataset/data/
 # C extensions
 *.so
 

@@ -16,7 +16,7 @@ model_urls = {
 
 
 class AlexNet(BasicModule):
-    def __init__(self, num_classes=1000):
+    def __init__(self, bit = 64, num_classes=1000):
         super(AlexNet, self).__init__()
         self.module_name = "Alexnet"
         self.features = nn.Sequential(
@@ -45,6 +45,11 @@ class AlexNet(BasicModule):
             nn.Linear(4096, 4096),
             nn.ReLU(inplace=True),
             nn.Linear(4096, num_classes),
+
+        )
+        self.hash = nn.Sequential(
+            nn.ReLU(inplace = True),
+            nn.Linear(num_classes, bit)
         )
 
     def forward(self, x):
@@ -52,10 +57,11 @@ class AlexNet(BasicModule):
         x = self.avgpool(x)
         x = torch.flatten(x, 1)
         x = self.classifier(x)
+        x = self.hash(x)
         return x
 
 
-def alexnet(pretrained=True, **kwargs):
+def get_alexnet(pretrained=True, **kwargs):
     r"""AlexNet model architecture from the
     `"One weird trick..." <https://arxiv.org/abs/1404.5997>`_ paper.
     Args:
