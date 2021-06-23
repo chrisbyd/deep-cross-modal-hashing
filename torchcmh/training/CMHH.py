@@ -22,7 +22,7 @@ class CMHH(TrainBase):
 
     Attention: this paper did not give parameters. All parameters may be not right.
     """
-    def __init__(self, data_name: str, img_dir: str, bit: int, visdom=True, batch_size=128, cuda=True, **kwargs):
+    def __init__(self, data_name: str, val_freq: int ,img_dir: str, bit: int, visdom=True, batch_size=128, cuda=True, **kwargs):
         super(CMHH, self).__init__("CMHH", data_name, bit, batch_size, visdom, cuda)
         self.train_data, self.valid_data = single_data(data_name, img_dir, batch_size=batch_size, **kwargs)
         self.loss_store = ['focal loss', 'quantization loss', 'loss']
@@ -30,6 +30,7 @@ class CMHH(TrainBase):
         self.lr = {'img': 0.02, 'txt': 0.2}
         self.lr_decay_freq = 15
         self.lr_decay = 0.5
+        self.val_freq = val_freq
 
         self.num_train = len(self.train_data)
         self.img_model = alexnet.get_alexnet(bit= bit)
@@ -103,7 +104,8 @@ class CMHH(TrainBase):
             self.print_loss(epoch)
             self.plot_loss('txt loss')
             self.reset_loss()
-            self.valid(epoch)
+            if epoch % self.val_freq == 0:
+                self.valid(epoch)
             self.lr_schedule()
             self.plotter.next_epoch()
 
@@ -118,7 +120,7 @@ class CMHH(TrainBase):
         return fl_loss, quantization_loss
 
 
-def train(dataset_name: str, img_dir: str, bit: int, visdom=True, batch_size=128, cuda=True, **kwargs):
-    trainer = CMHH(dataset_name, img_dir, bit, visdom, batch_size, cuda, **kwargs)
+def train(dataset_name: str, val_freq: int, img_dir: str, bit: int, visdom=True, batch_size=128, cuda=True, **kwargs):
+    trainer = CMHH(dataset_name, val_freq , img_dir, bit, visdom, batch_size, cuda, **kwargs)
     trainer.train()
 

@@ -5,6 +5,7 @@ training:
   bit: 64
   cuda: True
   device: 0
+  val_frequency: 50
 
 datasetPath:
   Mirflickr25k:

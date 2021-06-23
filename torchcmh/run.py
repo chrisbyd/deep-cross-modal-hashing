@@ -16,6 +16,7 @@ def run(config_path='train_config.yml', **kwargs):
     config = Config(config_path)
     method = config.training['method']
     data_name = config.training['dataName']
+    val_freq = config.training["val_frequency"]
     img_dir = config.get_img_dir()
     bit = int(config.training['bit'])
     batch_size = int(config.training['batchSize'])
@@ -38,13 +39,13 @@ def run(config_path='train_config.yml', **kwargs):
     print("valid transform")
     print("img:", config.img_valid_transform)
     print("txt:", config.txt_valid_transform)
-    get_train(method, data_name.upper(), img_dir, bit, batch_size=batch_size, cuda=cuda, **kwargs)
+    get_train(method, data_name.upper(), val_freq ,img_dir, bit, batch_size=batch_size, cuda=cuda, **kwargs)
 
 
-def get_train(method_name: str, dataset_name: str, img_dir: str, bit: int, **kwargs):
+def get_train(method_name: str, dataset_name: str, val_freq: int , img_dir: str, bit: int, **kwargs):
     package = "torchcmh.training"
     module = importlib.import_module('.' + method_name, package)
     train = getattr(module, 'train')
     t = datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
     sys.stdout = Logger(os.path.join('..', 'logs', method_name, dataset_name.upper(), t + '.txt'))
-    train(dataset_name, img_dir, bit, **kwargs)
+    train(dataset_name, val_freq, img_dir, bit, **kwargs)
