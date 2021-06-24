@@ -28,15 +28,19 @@ class CrossModalSingleTrain(CrossModalTrainBase):
         img = txt = None
         if self.img_read:
             img = self.read_img(item)
+            txt = self.read_txt(item)
         if self.txt_read:
             # txt = torch.Tensor(self.txt[item][np.newaxis, :, np.newaxis])
+            img = self.read_img(item)
             txt = self.read_txt(item)
         label = torch.Tensor(self.label[item])
         index = torch.from_numpy(np.array(item))
         back_dict = {'index': index, 'label': label}
         if self.img_read:
             back_dict['img'] = img
+            back_dict['txt'] = txt
         if self.txt_read:
+            back_dict['img'] = img
             back_dict['txt'] = txt
         return back_dict
         # if self.img_read is False:

@@ -62,21 +62,16 @@ class CMHH(TrainBase):
             for data in tqdm(train_loader):
                 ind = data['index'].numpy()
                 img = data['img']
-                txt = data['txt']
                 label = data['label']
                 if self.cuda:
                     img = img.cuda()
-                    txt = txt.cuda()
                     label = label.cuda()
                 hash_img = self.img_model(img)
                 hash_img = torch.tanh(hash_img)
-                
-                hash_txt = self.txt_model(txt)
-                hash_txt = torch.tanh(hash_txt).detach()
+                self.F_buffer[ind] = hash_img.data
+                G = Variable(self.G_buffer)
 
-               
-
-                fl_loss, quantization_loss = self.object_function(hash_img, hash_txt, label, ind)
+                fl_loss, quantization_loss = self.object_function(hash_img, G, label, ind)
                 loss = fl_loss + quantization_loss
                 self.optimizers[0].zero_grad()
                 loss.backward()
@@ -90,19 +85,16 @@ class CMHH(TrainBase):
             for data in tqdm(train_loader):
                 ind = data['index'].numpy()
                 txt = data['txt']
-                img = data['img']
                 label = data['label']
                 if self.cuda:
-                    img = img.cuda()
                     txt = txt.cuda()
                     label = label.cuda()
-                hash_img = self.img_model(img)
-                hash_img = torch.tanh(hash_img).detach()
                 hash_txt = self.txt_model(txt)
                 hash_txt = torch.tanh(hash_txt)
-                
+                self.G_buffer[ind] = hash_txt.data
+                F = Variable(self.F_buffer)
 
-                fl_loss, quantization_loss = self.object_function(hash_txt, hash_img, label, ind)
+                fl_loss, quantization_loss = self.object_function(hash_txt, F, label, ind)
                 loss = fl_loss + quantization_loss
                 self.optimizers[1].zero_grad()
                 loss.backward()
@@ -120,7 +112,7 @@ class CMHH(TrainBase):
     def object_function(self, cur_h, O, label, ind):
         hamming_dist = euclidean_dist_matrix(cur_h, O)
         logit = torch.exp(-hamming_dist * self.parameters['beta'])
-        sim = calc_neighbor(label, label)
+        sim = calc_neighbor(label, self.train_label)
         focal_pos = sim * focal_loss(logit, gamma=self.parameters['gamma'], alpha=self.parameters['alpha'])
         focal_neg = (1 - sim) * focal_loss(1 - logit, gamma=self.parameters['gamma'], alpha=1-self.parameters['alpha'])
         fl_loss = torch.mean(focal_pos + focal_neg)
