@@ -8,7 +8,7 @@ from torch.optim import SGD
 from torch.autograd import Variable
 from tqdm import tqdm
 from torch.utils.data import DataLoader
-from torchcmh.models import cnnf, MLP
+from torchcmh.models import cnnf, MLP, alexnet
 from torchcmh.training.base import TrainBase
 from torchcmh.utils import calc_neighbor
 from torchcmh.dataset import single_data
@@ -29,7 +29,7 @@ class PRDH(TrainBase):
         self.lr_decay_freq = 1
         self.lr_decay = (10 ** (-1.5) - 1e-6) / self.max_epoch
         self.num_train = len(self.train_data)
-        self.img_model = cnnf.get_cnnf(bit)
+        self.img_model = alexnet.get_alexnet(bit)
         self.txt_model = MLP.MLP(self.train_data.get_tag_length(), bit, leakRelu=False)
         self.F_buffer = torch.randn(self.num_train, bit)
         self.G_buffer = torch.randn(self.num_train, bit)
